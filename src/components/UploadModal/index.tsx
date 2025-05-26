@@ -56,7 +56,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ visible, onClose }) => {
     name: 'file',
     multiple: false,
     showUploadList: false,
-    customRequest({ file, onSuccess, onProgress, onError }: any) {
+    customRequest({ file, onSuccess, onProgress }: any) {
       const fileObj = file as File;
       
       // 创建新的文件状态
@@ -69,28 +69,34 @@ const UploadModal: React.FC<UploadModalProps> = ({ visible, onClose }) => {
       // 模拟分块上传过程
       let progress = 0;
       const interval = setInterval(() => {
-        progress += Math.random() * 10;
-        if (progress > 100) {
-          progress = 100;
-          clearInterval(interval);
-          
-          // 模拟上传完成
-          setTimeout(() => {
-            onSuccess("ok", null);
-            setCurrentFile(prev => prev ? { ...prev, status: 'done', progress: 100 } : null);
-            setUploadHistory(prev => [...prev, { name: fileObj.name, progress: 100, status: 'done' }]);
-            setShowSuccess(true);
+        try {
+          progress += Math.random() * 10;
+          if (progress > 100) {
+            progress = 100;
+            clearInterval(interval);
             
-            // 2秒后关闭弹窗
+            // 模拟上传完成
             setTimeout(() => {
-              onClose();
-              setShowSuccess(false);
-              setCurrentFile(null);
-            }, 2000);
-          }, 500);
-        } else {
-          onProgress({ percent: progress });
-          setCurrentFile(prev => prev ? { ...prev, progress } : null);
+              onSuccess("ok", null);
+              setCurrentFile(prev => prev ? { ...prev, status: 'done', progress: 100 } : null);
+              setUploadHistory(prev => [...prev, { name: fileObj.name, progress: 100, status: 'done' }]);
+              setShowSuccess(true);
+              
+              // 2秒后关闭弹窗
+              setTimeout(() => {
+                onClose();
+                setShowSuccess(false);
+                setCurrentFile(null);
+              }, 2000);
+            }, 500);
+          } else {
+            onProgress({ percent: progress });
+            setCurrentFile(prev => prev ? { ...prev, progress } : null);
+          }
+        } catch (error) {
+          clearInterval(interval);
+          setCurrentFile(prev => prev ? { ...prev, status: 'error', progress: 0 } : null);
+          message.error('上传失败，请重试');
         }
       }, 200);
     },
