@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:dev": "vite build --mode development",
+    "build:prod": "vite build --mode production",
+    "deploy:dev": "npm run build:dev && bash deploy.sh",
+    "deploy:prod": "npm run build:prod && bash deploy.sh"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
